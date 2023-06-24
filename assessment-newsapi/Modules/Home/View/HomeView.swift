@@ -36,6 +36,7 @@ class HomeView: UIViewController {
 extension HomeView {
     internal func loadNews(category: Category, page: Int) {
         guard let presenter else { return }
+        showLoading()
         Task {
             let news = await presenter.getHeadlineNews(category: category, page: page)
             switch news {
@@ -50,6 +51,7 @@ extension HomeView {
             case .failure(let failure):
                 print(failure.localizedDescription)
             }
+            dismiss(animated: false, completion: nil)
         }
     }
     
@@ -79,6 +81,18 @@ extension HomeView {
             viewLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         }
         
+    }
+    
+    func showLoading() {
+        let alert = UIAlertController(title: nil, message: "Loading...", preferredStyle: .alert)
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = .medium
+        loadingIndicator.startAnimating();
+
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
     }
 }
 
