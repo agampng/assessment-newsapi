@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SafariServices
 
 class HomeRouter {
     static func createModule() -> HomeView {
@@ -20,5 +21,11 @@ class HomeRouter {
         }
         view.presenter = presenter
         return view
+    }
+    
+    func showSafari(url: URL, on navigation: UINavigationController) {
+        let safari = SFSafariViewController(url: url)
+        safari.modalPresentationStyle = .formSheet
+        navigation.present(safari, animated: true)
     }
 }

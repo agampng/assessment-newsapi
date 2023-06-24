@@ -9,9 +9,11 @@ import UIKit
 
 class HomeView: UIViewController {
     
+    //MARK: - @IBOutlet
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
     
+    //MARK: - Properties
     var presenter: HomePresenter?
     private var category: Category = .all
     private var page: Int = 1
@@ -22,6 +24,7 @@ class HomeView: UIViewController {
         }
     }
     
+    //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 //        overrideUserInterfaceStyle = .dark
@@ -64,9 +67,7 @@ extension HomeView {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.refreshControl = UIRefreshControl()
-//        tableView.refreshControl?.addTarget(self,
-//                                            action: #selector(handleRefreshControl(_:)),
-//                                            for: .valueChanged)
+        tableView.refreshControl?.addTarget(self, action: #selector(handleRefreshControl(_:)), for: .valueChanged)
         tableView.register(NewsTableViewCell.nib, forCellReuseIdentifier: NewsTableViewCell.identifier)
     }
     
@@ -81,6 +82,14 @@ extension HomeView {
             viewLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         }
         
+    }
+    
+    @objc
+    func handleRefreshControl(_ sender: UIRefreshControl) {
+        DispatchQueue.main.async {
+            self.loadNews(category: self.category, page: 1)
+            self.tableView.refreshControl?.endRefreshing()
+        }
     }
     
     func showLoading() {
@@ -99,6 +108,11 @@ extension HomeView {
 extension HomeView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         UITableView.automaticDimension
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let presenter, let navigationController, let url = URL(string: listNews[indexPath.row]?.url ?? "") else { return }
+        presenter.showSafari(url: url, on: navigationController)
     }
 }
 
