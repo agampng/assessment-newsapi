@@ -21,8 +21,6 @@ class ApiManager {
 
 extension ApiManager {
     func requestAsync<T: Codable>(_ endpoint: Endpoint, timeout: TimeInterval = 60) async throws -> T {
-        
-        print(endpoint.parameters)
         return try await withUnsafeThrowingContinuation({ continuation in
             ApiManager.session.request(
                 endpoint.urlString(),
@@ -49,12 +47,10 @@ extension ApiManager {
                             continuation.resume(throwing: APIError.unauthorized)
                         default:
                             if let data = response.data {
-//                                print(data.)
                                 do {
                                     let decoded = try JSONDecoder().decode(T.self, from: data)
                                     continuation.resume(returning: decoded)
                                 } catch {
-                                    print(error)
                                     continuation.resume(throwing: error)
                                 }
                             } else {

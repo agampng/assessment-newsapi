@@ -19,9 +19,9 @@ class HomePresenter {
 
 //MARK: - Interactor
 extension HomePresenter {
-    func getHeadlineNews(category: Category, page: Int) async -> Result<NewsEntity, Error> {
+    func getHeadlineNews(category: Category, page: Int, q: String?) async -> Result<NewsEntity, Error> {
         do {
-            let entity = try await interactor.headlineNews(category: category, page: page)
+            let entity = try await interactor.headlineNews(page: page, category: category, q: q)
             return .success(entity)
         } catch {
             return .failure(error)

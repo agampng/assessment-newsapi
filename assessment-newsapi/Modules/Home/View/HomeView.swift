@@ -12,55 +12,72 @@ class HomeView: UIViewController {
     //MARK: - @IBOutlet
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var spinner: UIActivityIndicatorView!
     
     //MARK: - Properties
     var presenter: HomePresenter?
     private var category: Category = .all
+    private var searchQuery: String?
     private var page: Int = 1
+    private var hasNextPage: Bool = true
     private var listNews: [Article?] = [] {
         didSet {
-            print("didset")
             tableView.reloadData()
         }
     }
+    private lazy var searchController: UISearchController = {
+        let sc = UISearchController(searchResultsController: nil)
+        sc.searchBar.delegate = self
+        sc.searchBar.placeholder = "Type to search from NewsAPI"
+        return sc
+    }()
     
     //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-//        overrideUserInterfaceStyle = .dark
-        print("wjwkwk")
-        self.title = "Headline News"
-        loadNews(category: category, page: 1)
+        title = "Headline News"
+        loadNews(category: category, page: 1, q: searchQuery)
         setup(tableView)
         setup(collectionView)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationItem.hidesSearchBarWhenScrolling = true
+        navigationItem.searchController = searchController
     }
 }
 
 extension HomeView {
-    internal func loadNews(category: Category, page: Int) {
+    internal func loadNews(category: Category, page: Int, q: String?) {
         guard let presenter else { return }
-        showLoading()
+        showLoading(true)
+        searchController.dismiss(animated: true)
+        
         Task {
-            let news = await presenter.getHeadlineNews(category: category, page: page)
+            let news = await presenter.getHeadlineNews(category: category, page: page, q: q)
             switch news {
             case .success(let data):
                 guard let articles = data.articles else { return }
-//                print(success)
+                hasNextPage = !articles.isEmpty
                 if page == 1 {
                     listNews = articles
                 } else {
                     listNews.append(contentsOf: articles)
                 }
             case .failure(let failure):
-                print(failure.localizedDescription)
+                listNews = []
+                let alert = UIAlertController(title: "Error", message: failure.localizedDescription, preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+                present(alert, animated: true, completion: nil)
             }
-            dismiss(animated: false, completion: nil)
+            showLoading(false)
         }
     }
     
     internal func loadNextNews() {
         page += 1
-        loadNews(category: category, page: page)
+        loadNews(category: category, page: page, q: searchQuery)
     }
     
     internal func setup(_ tableView: UITableView) {
@@ -77,34 +94,38 @@ extension HomeView {
         collectionView.register(NewsCategoryCVC.nib, forCellWithReuseIdentifier: NewsCategoryCVC.identifier)
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = false
-        
-        if let viewLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            viewLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+    }
+    
+    func showLoading(_ show: Bool) {
+        if show {
+            spinner.startAnimating()
+            spinner.isHidden = false
+        } else {
+            spinner.stopAnimating()
+            spinner.isHidden = true
         }
-        
     }
     
     @objc
     func handleRefreshControl(_ sender: UIRefreshControl) {
         DispatchQueue.main.async {
-            self.loadNews(category: self.category, page: 1)
+            self.page = 1
+            self.loadNews(category: self.category, page: self.page, q: self.searchQuery)
             self.tableView.refreshControl?.endRefreshing()
         }
     }
-    
-    func showLoading() {
-        let alert = UIAlertController(title: nil, message: "Loading...", preferredStyle: .alert)
+}
 
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.style = .medium
-        loadingIndicator.startAnimating();
-
-        alert.view.addSubview(loadingIndicator)
-        present(alert, animated: true, completion: nil)
+//MARK: - UISearchBarDelegate
+extension HomeView: UISearchBarDelegate {
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchQuery = searchBar.text
+        page = 1
+        loadNews(category: category, page: page, q: searchQuery)
     }
 }
 
+//MARK: - UITableViewDelegate
 extension HomeView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         UITableView.automaticDimension
@@ -116,9 +137,11 @@ extension HomeView: UITableViewDelegate {
     }
 }
 
+//MARK: - UITableViewDataSource
 extension HomeView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        listNews.count
+        listNews.isEmpty ? tableView.setEmptyMessage("No News Found") : tableView.restore()
+        return listNews.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -132,39 +155,37 @@ extension HomeView: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if (listNews.count - indexPath.row) < 2 {
-            print("start fetch")
-            loadNextNews()
-        }
+        guard hasNextPage, (listNews.count - indexPath.row) < 2 else { return }
+        loadNextNews()
     }
 }
-    
 
-
-extension HomeView: UICollectionViewDataSource, UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Category.allCases.count
-    }
-
+//MARK: - UICollectionViewDelegate
+extension HomeView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
- 
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewsCategoryCVC.identifier, for: indexPath) as? NewsCategoryCVC else {
-                return UICollectionViewCell()
-            }
-
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewsCategoryCVC.identifier, for: indexPath) as? NewsCategoryCVC else {
+            return UICollectionViewCell()
+        }
+        
         cell.titleLabel.text = Category.allCases[indexPath.row].text
         cell.backgroundColor = cell.isSelected ? .blue : .clear
         cell.selectedBackgroundView?.backgroundColor = .blue
         
-        print(cell.isSelected)
-
         return cell
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         category = Category.allCases[indexPath.row]
-        loadNews(category: category, page: 1)
+        page = 1
+        loadNews(category: category, page: page, q: searchQuery)
         tableView.setContentOffset(.zero, animated: true)
+    }
+}
+
+//MARK: - UICollectionViewDataSource
+extension HomeView: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return Category.allCases.count
     }
 }
 

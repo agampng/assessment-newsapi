@@ -10,11 +10,13 @@ import Foundation
 // MARK: - NewsEntity
 struct NewsEntity: Codable {
     let status: String?
+    let code: String?
+    let message: String?
     let totalResults: Int?
     let articles: [Article]?
     
     enum CodingKeys: String, CodingKey {
-        case status, totalResults, articles
+        case status, totalResults, articles, code, message
     }
 }
 
@@ -43,6 +45,7 @@ struct Source: Codable {
     }
 }
 
+// MARK: - Categories
 enum Category: String, CaseIterable {
     case all
     case business
@@ -56,8 +59,8 @@ enum Category: String, CaseIterable {
         return rawValue.capitalized
     }
     
-    var searchParam: String {
-        return self == .all ? "" : self.text
+    var searchParam: String? {
+        return self == .all ? nil : self.text
     }
 }
 

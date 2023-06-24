@@ -19,17 +19,6 @@ class NewsTableViewCell: UITableViewCell {
         nibName: identifier,
         bundle: nil)
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-    
     func setupData(_ article: Article) {
         newImage.image = .none
         if let imgUrl = URL(string: article.urlToImage ?? "") {

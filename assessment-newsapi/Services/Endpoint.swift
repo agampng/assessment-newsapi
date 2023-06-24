@@ -10,7 +10,7 @@ import Alamofire
 
 // MARK: - Endpoint
 enum Endpoint {
-    case headlines(category: String, page: String)
+    case headlines(page: String, category: String?, q: String?)
 }
 
 // MARK: - Path
@@ -34,16 +34,22 @@ extension Endpoint {
 extension Endpoint {
     var parameters: [String: Any]? {
         switch self {
-        case .headlines(let category, let page):
-            let params: [String: Any] = [
-                "category": category,
+        case .headlines(let page, let category, let q):
+            var params: [String: Any] = [
                 "page": page,
                 "pageSize": "10",
                 "language": "en"
             ]
+            
+            if let q, !q.isEmpty {
+                params["q"] = q
+            }
+            
+            if let category {
+                params["category"] = category
+            }
+            
             return params
-        default:
-            return [:]
         }
     }
 }

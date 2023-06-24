@@ -8,7 +8,7 @@
 import Foundation
 
 class HomeInteractor {
-    func headlineNews(category: Category, page: Int) async throws -> NewsEntity {
-        return try await ApiManager().requestAsync(.headlines(category: category.searchParam, page: "\(page)"))
+    func headlineNews(page: Int, category: Category, q: String?) async throws -> NewsEntity {
+        return try await ApiManager().requestAsync(.headlines( page: "\(page)", category: category.searchParam, q: q))
     }
 }

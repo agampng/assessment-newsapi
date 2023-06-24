@@ -16,20 +16,10 @@ class NewsCategoryCVC: UICollectionViewCell {
         nibName: identifier,
         bundle: nil)
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
-    
     override var isSelected: Bool {
         didSet {
-            if (isSelected){
-                backgroundColor = .blue
-                titleLabel.textColor = .white
-            }else {
-                backgroundColor = .clear
-                titleLabel.textColor = .black
-            }
+            backgroundColor = isSelected ? .blue : .clear
+            titleLabel.textColor = isSelected ? .white : .black
         }
     }
 }

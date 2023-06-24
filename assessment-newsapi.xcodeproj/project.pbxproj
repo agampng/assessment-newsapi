@@ -29,6 +29,7 @@
 		C60281392A45F6D7000FA160 /* ImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60281382A45F6D7000FA160 /* ImageExtension.swift */; };
 		C69D4B1B2A46BD2D00B7DA89 /* NewsCategoryCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69D4B192A46BD2D00B7DA89 /* NewsCategoryCVC.swift */; };
 		C69D4B1C2A46BD2D00B7DA89 /* NewsCategoryCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = C69D4B1A2A46BD2D00B7DA89 /* NewsCategoryCVC.xib */; };
+		C69D4B2C2A47004900B7DA89 /* TableViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69D4B2B2A47004900B7DA89 /* TableViewExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 		C60281382A45F6D7000FA160 /* ImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageExtension.swift; sourceTree = "<group>"; };
 		C69D4B192A46BD2D00B7DA89 /* NewsCategoryCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsCategoryCVC.swift; sourceTree = "<group>"; };
 		C69D4B1A2A46BD2D00B7DA89 /* NewsCategoryCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NewsCategoryCVC.xib; sourceTree = "<group>"; };
+		C69D4B2B2A47004900B7DA89 /* TableViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewExtension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -217,6 +219,7 @@
 			isa = PBXGroup;
 			children = (
 				C60281382A45F6D7000FA160 /* ImageExtension.swift */,
+				C69D4B2B2A47004900B7DA89 /* TableViewExtension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -363,6 +366,7 @@
 				C602811B2A4573AE000FA160 /* APIManager.swift in Sources */,
 				C60281352A45E3F8000FA160 /* NewsTableViewCell.swift in Sources */,
 				C60281222A4585E9000FA160 /* HomeView.swift in Sources */,
+				C69D4B2C2A47004900B7DA89 /* TableViewExtension.swift in Sources */,
 				C60281282A458603000FA160 /* HomeEntity.swift in Sources */,
 				C60281242A4585F3000FA160 /* HomeInteractor.swift in Sources */,
 				C60280E82A454086000FA160 /* AppDelegate.swift in Sources */,
